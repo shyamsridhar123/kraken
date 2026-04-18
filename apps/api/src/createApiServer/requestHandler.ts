@@ -144,6 +144,16 @@ const API_ROUTE_MAP: ReadonlyMap<string, readonly ApiRouteHandler[]> = new Map([
   ["terminals", [handleTerminalsCollectionRoute, handleTerminalItemRoute]],
   ["arms", [handleArmGitRoute, handleArmGitPullRequestRoute]],
   ["code-intel", [handleCodeIntelEventsRoute]],
+  [
+    "health",
+    [
+      async (ctx, _deps) => {
+        if (ctx.requestUrl.pathname !== "/api/health") return false;
+        writeJson(ctx.response, 200, { status: "ok", timestamp: new Date().toISOString() }, ctx.corsOrigin);
+        return true;
+      },
+    ],
+  ],
 ]);
 
 const extractRoutePrefix = (pathname: string): string | null => {

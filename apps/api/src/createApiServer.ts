@@ -94,7 +94,37 @@ export const createApiServer = ({
         cwd: resolvedWorkspaceCwd,
       }));
 
-  const runtime = {} as unknown as TerminalRuntime;
+  const runtime = {
+    listTerminalSnapshots: () => [],
+    getTerminalSnapshot: () => null,
+    createTerminal: () => ({ terminalId: "", armId: "", armName: "", createdAt: new Date().toISOString(), workspaceMode: "shared" as const, nameOrigin: "generated" as const }),
+    deleteTerminal: () => {},
+    renameTerminal: () => {},
+    getChannelMessages: () => [],
+    sendChannelMessage: () => null,
+    getUiState: () => ({}),
+    readUiState: () => ({}),
+    patchUiState: () => ({}),
+    handleHookEvent: () => {},
+    getConversations: () => [],
+    listConversationSessions: () => [],
+    getConversation: () => null,
+    readConversationSession: () => null,
+    searchConversations: () => ({ query: "", hits: [] }),
+    deleteConversation: () => {},
+    deleteConversationSession: () => {},
+    deleteAllConversations: () => {},
+    deleteAllConversationSessions: () => {},
+    exportConversation: () => null,
+    exportConversationSession: () => null,
+    handleUpgrade: () => {},
+    getGitStatus: () => null,
+    getGitPullRequest: () => null,
+    gitCommit: async () => {},
+    gitPush: async () => {},
+    gitSync: async () => {},
+    gitMergePullRequest: async () => {},
+  } as unknown as TerminalRuntime;
   const monitorServiceWithDefault =
     monitorService ??
     createMonitorService({

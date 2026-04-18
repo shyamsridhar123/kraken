@@ -1,0 +1,136 @@
+@import url("https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap");
+
+:root {
+  --bg-canvas: #050607;
+  --bg-surface-1: #0b0d10;
+  --bg-surface-2: #12151b;
+  --border-subtle: #2b2f36;
+  --text-primary: #e6e8ec;
+  --text-secondary: #a9b0ba;
+  --accent-primary: #d6a21a;
+  --term-red: #8c0b12;
+  --term-green: #25d366;
+  --term-blue: #0d2a57;
+  --term-warning: #ffb020;
+  --control-border-strong: #2b2f36;
+  --control-bg-strong: #0b0d10;
+  --sidebar-canvas: color-mix(in srgb, var(--bg-surface-1) 84%, #131a23 16%);
+  --sidebar-panel: color-mix(in srgb, var(--bg-surface-1) 78%, #1b2430 22%);
+  --sidebar-card: color-mix(in srgb, var(--bg-surface-1) 82%, #16202a 18%);
+  --sidebar-header: color-mix(in srgb, var(--bg-surface-2) 72%, #212c3a 28%);
+  --sidebar-row: color-mix(in srgb, var(--bg-surface-1) 88%, #121a22 12%);
+  --sidebar-row-hover: color-mix(in srgb, var(--sidebar-row) 76%, #263445 24%);
+  --sidebar-row-active: color-mix(in srgb, var(--sidebar-row) 62%, #2c4055 38%);
+  --sidebar-border: color-mix(in srgb, var(--border-subtle) 72%, #313d4d 28%);
+  --sidebar-border-strong: color-mix(in srgb, var(--border-subtle) 48%, #3a4f66 52%);
+  --sidebar-text-muted: color-mix(in srgb, var(--text-secondary) 84%, #9eb2c8 16%);
+  --terminal-bg: #101722;
+  --terminal-header-bg-top: #254570;
+  --terminal-header-bg-bottom: #1e385a;
+  --terminal-header-text: #e6e8ec;
+  --terminal-scrollbar-track: color-mix(in srgb, var(--terminal-bg) 88%, #0f1622 12%);
+  --terminal-scrollbar-thumb: color-mix(in srgb, var(--accent-primary) 34%, var(--terminal-bg) 66%);
+  --terminal-scrollbar-thumb-hover: color-mix(
+    in srgb,
+    var(--accent-primary) 44%,
+    var(--terminal-bg) 56%
+  );
+  --terminal-scrollbar-thumb-active: color-mix(
+    in srgb,
+    var(--accent-primary) 54%,
+    var(--terminal-bg) 46%
+  );
+  --font-main: "PP Neue Machina Plain", "PP Neue Machina", "JetBrains Mono", "IBM Plex Mono",
+    monospace;
+  --control-font-family: var(--font-main);
+  --control-letter-spacing: 0.06em;
+  --control-line-height: 1.2;
+  --ui-base-font-size: 17px;
+  --scrollbar-size: 10px;
+  --scrollbar-track: color-mix(in srgb, var(--bg-surface-1) 88%, #121212);
+  --scrollbar-thumb: color-mix(in srgb, var(--accent-primary) 38%, var(--border-subtle) 62%);
+  --scrollbar-thumb-hover: color-mix(in srgb, var(--accent-primary) 54%, var(--border-subtle) 46%);
+  --scrollbar-thumb-active: color-mix(in srgb, var(--accent-primary) 68%, var(--border-subtle) 32%);
+  --terminal-column-min-width: 370px;
+}
+
+/* ── Reset ── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  min-height: 100%;
+}
+
+html {
+  font-size: var(--ui-base-font-size);
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  font-family: var(--font-main);
+  background: radial-gradient(circle at top right, #11161e 0%, var(--bg-canvas) 54%);
+  color: var(--text-primary);
+  line-height: var(--control-line-height);
+  letter-spacing: var(--control-letter-spacing);
+  overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Layout shells ── */
+
+.page {
+  height: 100vh;
+  min-height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.workspace-shell {
+  height: 100%;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.workspace-shell--full {
+  grid-template-columns: 1fr;
+}
+
+/* ── Scrollbar styling ── */
+
+::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+::-webkit-scrollbar-thumb:active {
+  background: var(--scrollbar-thumb-active);
+}

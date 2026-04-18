@@ -1,0 +1,6 @@
+node_modules/
+dist/
+coverage/
+.kraken/
+*.db
+*.db-journal

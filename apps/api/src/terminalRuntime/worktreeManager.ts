@@ -1,0 +1,135 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+
+import { ARM_WORKTREE_BRANCH_PREFIX, ARM_WORKTREE_RELATIVE_PATH } from "./constants";
+import { toErrorMessage } from "./systemClients";
+import type { GitClient, PersistedTerminal } from "./types";
+import { RuntimeInputError } from "./types";
+
+type CreateWorktreeManagerOptions = {
+  workspaceCwd: string;
+  gitClient: GitClient;
+  terminals: Map<string, PersistedTerminal>;
+};
+
+type RemoveArmWorktreeOptions = {
+  bestEffort?: boolean;
+};
+
+/** Resolve the effective worktree identifier for a terminal. */
+const getEffectiveWorktreeId = (terminal: PersistedTerminal): string =>
+  terminal.worktreeId ?? terminal.armId;
+
+/** Find any terminal whose effective worktree identifier matches. */
+const findTerminalForWorktree = (
+  terminals: Map<string, PersistedTerminal>,
+  worktreeIdentifier: string,
+): PersistedTerminal | undefined => {
+  for (const terminal of terminals.values()) {
+    if (getEffectiveWorktreeId(terminal) === worktreeIdentifier) {
+      return terminal;
+    }
+  }
+  return undefined;
+};
+
+export const createWorktreeManager = ({
+  workspaceCwd,
+  gitClient,
+  terminals,
+}: CreateWorktreeManagerOptions) => {
+  const getArmWorktreePath = (armId: string) =>
+    join(workspaceCwd, ARM_WORKTREE_RELATIVE_PATH, armId);
+  const getArmBranchName = (armId: string) =>
+    `${ARM_WORKTREE_BRANCH_PREFIX}${armId}`;
+
+  const getArmWorkspaceCwd = (worktreeIdentifier: string) => {
+    const terminal = findTerminalForWorktree(terminals, worktreeIdentifier);
+    if (!terminal) {
+      throw new Error(`No terminal found for worktree: ${worktreeIdentifier}`);
+    }
+
+    if (terminal.workspaceMode === "worktree") {
+      return getArmWorktreePath(worktreeIdentifier);
+    }
+
+    return workspaceCwd;
+  };
+
+  const assertWorktreeCreationSupported = () => {
+    gitClient.assertAvailable();
+    if (!gitClient.isRepository(workspaceCwd)) {
+      throw new RuntimeInputError(
+        "Worktree terminals require a git repository at the workspace root.",
+      );
+    }
+  };
+
+  const createArmWorktree = (armId: string, baseRef = "HEAD") => {
+    assertWorktreeCreationSupported();
+    const worktreePath = getArmWorktreePath(armId);
+    if (existsSync(worktreePath)) {
+      throw new RuntimeInputError(`Worktree path already exists: ${worktreePath}`);
+    }
+
+    try {
+      gitClient.addWorktree({
+        cwd: workspaceCwd,
+        path: worktreePath,
+        branchName: `${ARM_WORKTREE_BRANCH_PREFIX}${armId}`,
+        baseRef,
+      });
+    } catch (error) {
+      throw new Error(`Unable to create worktree for ${armId}: ${toErrorMessage(error)}`);
+    }
+  };
+
+  const hasArmWorktree = (armId: string): boolean =>
+    existsSync(getArmWorktreePath(armId));
+
+  const removeArmWorktree = (
+    armId: string,
+    options: RemoveArmWorktreeOptions = {},
+  ) => {
+    const { bestEffort = false } = options;
+    const worktreePath = getArmWorktreePath(armId);
+    const branchName = getArmBranchName(armId);
+
+    if (existsSync(worktreePath)) {
+      try {
+        gitClient.removeWorktree({
+          cwd: workspaceCwd,
+          path: worktreePath,
+        });
+      } catch (error) {
+        if (bestEffort) {
+          return;
+        }
+        throw new RuntimeInputError(
+          `Unable to remove worktree for ${armId}: ${toErrorMessage(error)}`,
+        );
+      }
+    }
+
+    try {
+      gitClient.removeBranch({
+        cwd: workspaceCwd,
+        branchName,
+      });
+    } catch (error) {
+      if (bestEffort) {
+        return;
+      }
+      throw new RuntimeInputError(
+        `Unable to remove branch for ${armId}: ${toErrorMessage(error)}`,
+      );
+    }
+  };
+
+  return {
+    getArmWorkspaceCwd,
+    createArmWorktree,
+    hasArmWorktree,
+    removeArmWorktree,
+  };
+};

@@ -77,35 +77,3 @@ export {
 export { createSessionRuntime } from "./sessionRuntime";
 
 export { createWorktreeManager } from "./worktreeManager";
-
-// Main export: Create the terminal runtime with all its components
-export const createTerminalRuntime = (
-  options: CreateTerminalRuntimeOptions,
-) => {
-  const { loadTerminalRegistry } = require("./registry");
-  const { createSessionRuntime } = require("./sessionRuntime");
-  const { createWorktreeManager } = require("./worktreeManager");
-  const { join } = require("node:path");
-  const { TERMINAL_REGISTRY_RELATIVE_PATH } = require("./constants");
-
-  const registryPath = join(options.workspaceCwd, TERMINAL_REGISTRY_RELATIVE_PATH);
-
-  const registry = loadTerminalRegistry(registryPath);
-  const sessionRuntime = createSessionRuntime({
-    projectStateDir: options.projectStateDir,
-    gitClient: options.gitClient,
-    getApiBaseUrl: options.getApiBaseUrl,
-  });
-  const worktreeManager = createWorktreeManager({
-    workspaceCwd: options.workspaceCwd,
-    gitClient: options.gitClient,
-  });
-
-  return {
-    registry,
-    sessionRuntime,
-    worktreeManager,
-  };
-};
-
-import type { CreateTerminalRuntimeOptions } from "./types";

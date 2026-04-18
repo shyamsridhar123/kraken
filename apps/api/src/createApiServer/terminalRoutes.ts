@@ -55,7 +55,7 @@ export const handleTerminalSnapshotsRoute: ApiRouteHandler = async (
     return true;
   }
 
-  const payload = (runtime as any).listTerminalSnapshots();
+  const payload = runtime.listTerminalSnapshots();
   writeJson(response, 200, payload, corsOrigin);
   return true;
 };
@@ -183,7 +183,7 @@ export const handleTerminalsCollectionRoute: ApiRouteHandler = async (
           : {};
 
       // Auto-inject terminalId variable so callers don't have to guess it.
-      // The runtime as any hasn't allocated the ID yet, so we use the arm name
+      // The runtime hasn't allocated the ID yet, so we use the arm name
       // when provided (sandbox always passes its name).
       if (!templateVars.terminalId && createTerminalInput.armName) {
         templateVars.terminalId = createTerminalInput.armName;
@@ -240,7 +240,7 @@ export const handleTerminalsCollectionRoute: ApiRouteHandler = async (
       }
     }
 
-    const snapshot = (runtime as any).createTerminal(createTerminalInput);
+    const snapshot = runtime.createTerminal(createTerminalInput);
     const payload: Record<string, unknown> = { ...snapshot };
     if (createTerminalInput.initialPrompt) {
       payload.initialPrompt = createTerminalInput.initialPrompt;
@@ -276,7 +276,7 @@ export const handleTerminalItemRoute: ApiRouteHandler = async (
   const terminalId = decodeURIComponent(renameMatch[1] ?? "");
   if (request.method === "DELETE") {
     try {
-      (runtime as any).deleteTerminal(terminalId);
+      runtime.deleteTerminal(terminalId);
       writeNoContent(response, 204, corsOrigin);
       return true;
     } catch (error) {
@@ -304,7 +304,7 @@ export const handleTerminalItemRoute: ApiRouteHandler = async (
     return true;
   }
 
-  const payload = (runtime as any).renameTerminal(terminalId, nameResult.name);
+  const payload = runtime.renameTerminal(terminalId, nameResult.name);
   if (!payload) {
     writeJson(response, 404, { error: "Terminal not found." }, corsOrigin);
     return true;

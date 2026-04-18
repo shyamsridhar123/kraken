@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git -C C:/Users/shyamsridhar/code/kraken log --oneline)"
+    ]
+  }
+}

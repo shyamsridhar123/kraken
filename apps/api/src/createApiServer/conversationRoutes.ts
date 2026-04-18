@@ -14,7 +14,7 @@ export const handleConversationsCollectionRoute: ApiRouteHandler = async (
   }
 
   if (request.method === "DELETE") {
-    (runtime as any).deleteAllConversationSessions();
+    runtime.deleteAllConversationSessions();
     writeNoContent(response, 204, corsOrigin);
     return true;
   }
@@ -24,7 +24,7 @@ export const handleConversationsCollectionRoute: ApiRouteHandler = async (
     return true;
   }
 
-  const payload = (runtime as any).listConversationSessions();
+  const payload = runtime.listConversationSessions();
   writeJson(response, 200, payload, corsOrigin);
   return true;
 };
@@ -48,7 +48,7 @@ export const handleConversationSearchRoute: ApiRouteHandler = async (
     return true;
   }
 
-  const payload = (runtime as any).searchConversations(query);
+  const payload = runtime.searchConversations(query);
   writeJson(response, 200, payload, corsOrigin);
   return true;
 };
@@ -65,7 +65,7 @@ export const handleConversationItemRoute: ApiRouteHandler = async (
   const sessionId = decodeURIComponent(match[1] ?? "");
 
   if (request.method === "DELETE") {
-    (runtime as any).deleteConversationSession(sessionId);
+    runtime.deleteConversationSession(sessionId);
     writeNoContent(response, 204, corsOrigin);
     return true;
   }
@@ -75,7 +75,7 @@ export const handleConversationItemRoute: ApiRouteHandler = async (
     return true;
   }
 
-  const payload = (runtime as any).readConversationSession(sessionId);
+  const payload = runtime.readConversationSession(sessionId);
   if (!payload) {
     writeJson(response, 404, { error: "Conversation session not found." }, corsOrigin);
     return true;
@@ -107,7 +107,7 @@ export const handleConversationExportRoute: ApiRouteHandler = async (
   }
 
   if (format === "json") {
-    const payload = (runtime as any).readConversationSession(sessionId);
+    const payload = runtime.readConversationSession(sessionId);
     if (!payload) {
       writeJson(response, 404, { error: "Conversation session not found." }, corsOrigin);
       return true;
@@ -117,7 +117,7 @@ export const handleConversationExportRoute: ApiRouteHandler = async (
     return true;
   }
 
-  const payload = (runtime as any).exportConversationSession(sessionId, "md");
+  const payload = runtime.exportConversationSession(sessionId, "md");
   if (payload === null) {
     writeJson(response, 404, { error: "Conversation session not found." }, corsOrigin);
     return true;

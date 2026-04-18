@@ -446,9 +446,9 @@ export const handleCommandDeckTodoSolveRoute: ApiRouteHandler = async (
   }
 
   const terminalId = `${armId}-todo-${itemIndex}`;
-  const existingTerminal = (runtime as any)
+  const existingTerminal = runtime
     .listTerminalSnapshots()
-    .find((terminal: unknown) => (terminal as any).terminalId === terminalId);
+    .find((terminal) => terminal.terminalId === terminalId);
   if (existingTerminal) {
     writeJson(
       response,
@@ -474,7 +474,7 @@ export const handleCommandDeckTodoSolveRoute: ApiRouteHandler = async (
       apiPort: getApiPort(),
     });
 
-    const snapshot = (runtime as any).createTerminal({
+    const snapshot = runtime.createTerminal({
       terminalId,
       armId,
       armName,
@@ -590,10 +590,10 @@ export const handleCommandDeckArmFleetRoute: ApiRouteHandler = async (
   }
 
   // Check for existing fleet terminals to prevent duplicates.
-  const existingTerminals = (runtime as any).listTerminalSnapshots();
+  const existingTerminals = runtime.listTerminalSnapshots();
   const existingFleetIds = existingTerminals
-    .filter((t: unknown) => (t as any).terminalId.startsWith(`${armId}-fleet-`))
-    .map((t: unknown) => (t as any).terminalId);
+    .filter((t) => t.terminalId.startsWith(`${armId}-fleet-`))
+    .map((t) => t.terminalId);
   if (existingFleetIds.length > 0) {
     writeJson(
       response,
@@ -606,7 +606,7 @@ export const handleCommandDeckArmFleetRoute: ApiRouteHandler = async (
 
   // Determine base ref: use arm's worktree branch if it exists, otherwise HEAD.
   const armTerminal = existingTerminals.find(
-    (t: unknown) => (t as any).armId === armId && (t as any).workspaceMode === "worktree",
+    (t) => t.armId === armId && t.workspaceMode === "worktree",
   );
   const baseRef = armTerminal ? `kraken/${armId}` : "HEAD";
 
@@ -761,7 +761,7 @@ export const handleCommandDeckArmFleetRoute: ApiRouteHandler = async (
         parentSection: "",
       });
 
-      (runtime as any).createTerminal({
+      runtime.createTerminal({
         terminalId: worker.terminalId,
         armId,
         ...(workerWorkspaceMode === "worktree" ? { worktreeId: worker.terminalId } : {}),
@@ -853,7 +853,7 @@ export const handleCommandDeckArmFleetRoute: ApiRouteHandler = async (
         apiPort,
       });
 
-      (runtime as any).createTerminal({
+      runtime.createTerminal({
         terminalId: parentTerminalId,
         armId,
         armName: `${armName} (captain)`,

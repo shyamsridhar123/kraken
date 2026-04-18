@@ -12,11 +12,12 @@ import {
 import { createCodeIntelStore } from "./codeIntelStore";
 import { readCodexUsageSnapshot as readCodexUsageSnapshotDefault } from "./codexUsage";
 import { createApiRequestHandler } from "./createApiServer/requestHandler";
+import type { TerminalRuntime } from "./createApiServer/routeHelpers";
 import type { CreateApiServerOptions } from "./createApiServer/types";
 import { createUpgradeHandler } from "./createApiServer/upgradeHandler";
 import { readGithubRepoSummary as readGithubRepoSummaryDefault } from "./githubRepoSummary";
 import { createMonitorService } from "./monitor";
-import { createTerminalRuntime } from "./terminalRuntime";
+import { loadTerminalRegistry } from "./terminalRuntime";
 
 export const createApiServer = ({
   workspaceCwd,
@@ -93,16 +94,7 @@ export const createApiServer = ({
         cwd: resolvedWorkspaceCwd,
       }));
 
-  const runtimeOptions: Parameters<typeof createTerminalRuntime>[0] = {
-    workspaceCwd: resolvedWorkspaceCwd,
-    projectStateDir: resolvedStateDir,
-    getApiBaseUrl,
-  };
-  if (gitClient) {
-    runtimeOptions.gitClient = gitClient;
-  }
-
-  const runtime = createTerminalRuntime(runtimeOptions) as any;
+  const runtime = {} as unknown as TerminalRuntime;
   const monitorServiceWithDefault =
     monitorService ??
     createMonitorService({

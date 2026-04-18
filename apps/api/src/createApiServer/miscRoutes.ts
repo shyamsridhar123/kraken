@@ -84,7 +84,7 @@ export const handleUiStateRoute: ApiRouteHandler = async (
   }
 
   if (request.method === "GET") {
-    const payload = (runtime as any).readUiState();
+    const payload = runtime.readUiState();
     writeJson(response, 200, payload, corsOrigin);
     return true;
   }
@@ -110,7 +110,7 @@ export const handleUiStateRoute: ApiRouteHandler = async (
     return true;
   }
 
-  const payload = (runtime as any).patchUiState(uiStatePatch.patch);
+  const payload = runtime.patchUiState(uiStatePatch.patch);
   writeJson(response, 200, payload, corsOrigin);
   return true;
 };
@@ -145,7 +145,7 @@ export const handleHookRoute: ApiRouteHandler = async (
       : undefined) ??
     requestUrl.searchParams.get("kraken_session") ??
     undefined;
-  const result = (runtime as any).handleHook(hookName, body.payload, krakenSessionId);
+  const result = runtime.handleHook(hookName, body.payload, krakenSessionId);
 
   if (hookName === "session-start" || hookName === "stop") {
     invalidateClaudeUsageCache();
@@ -280,7 +280,7 @@ export const handleChannelMessagesRoute: ApiRouteHandler = async (
   const terminalId = decodeURIComponent(match[1] ?? "");
 
   if (request.method === "GET") {
-    const messages = (runtime as any).listChannelMessages(terminalId);
+    const messages = runtime.listChannelMessages(terminalId);
     writeJson(response, 200, { terminalId, messages }, corsOrigin);
     return true;
   }
@@ -305,7 +305,7 @@ export const handleChannelMessagesRoute: ApiRouteHandler = async (
     return true;
   }
 
-  const message = (runtime as any).sendChannelMessage(terminalId, fromTerminalId, content);
+  const message = runtime.sendChannelMessage(terminalId, fromTerminalId, content);
   if (!message) {
     writeJson(response, 404, { error: "Target terminal not found." }, corsOrigin);
     return true;

@@ -1,4 +1,4 @@
-import { spawn } from "node:child_process";
+import { exec } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { homedir } from "node:os";
@@ -70,7 +70,7 @@ const findOpenPort = async (startPort) => {
   throw new Error(`Unable to find an open port starting from ${startPort}`);
 };
 
-const pnpmCommand = process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+const pnpmCommand = "pnpm";
 const startPort = parseStartPort(process.env.KRAKEN_DEV_START_PORT);
 const apiPort = await findOpenPort(startPort);
 const apiOrigin = `http://127.0.0.1:${apiPort}`;
@@ -121,21 +121,22 @@ const resolveProjectStateDir = (workspaceCwd) => {
 const workspaceCwd = process.env.KRAKEN_WORKSPACE_CWD ?? monorepoRoot;
 const projectStateDir = resolveProjectStateDir(workspaceCwd);
 
-const child = spawn(
-  pnpmCommand,
-  ["-r", "--parallel", "--filter", "@kraken/api", "--filter", "@kraken/web", "dev"],
-  {
-    stdio: "inherit",
-    env: {
-      ...process.env,
-      KRAKEN_API_PORT: String(apiPort),
-      KRAKEN_API_ORIGIN: apiOrigin,
-      KRAKEN_WORKSPACE_CWD: workspaceCwd,
-      KRAKEN_PROJECT_STATE_DIR: projectStateDir,
-      KRAKEN_PROMPTS_DIR: process.env.KRAKEN_PROMPTS_DIR ?? `${monorepoRoot}/prompts`,
-    },
-  },
-);
+const env = {
+  ...process.env,
+  KRAKEN_API_PORT: String(apiPort),
+  KRAKEN_API_ORIGIN: apiOrigin,
+  KRAKEN_WORKSPACE_CWD: workspaceCwd,
+  KRAKEN_PROJECT_STATE_DIR: projectStateDir,
+  KRAKEN_PROMPTS_DIR: process.env.KRAKEN_PROMPTS_DIR ?? `${monorepoRoot}/prompts`,
+};
+
+const cmd = `pnpm -r --parallel --filter @kraken/api --filter @kraken/web dev`;
+
+const child = exec(cmd, {
+  stdio: "inherit",
+  cwd: monorepoRoot,
+  env,
+});
 
 const forwardSignal = (signal) => {
   if (child.killed) {

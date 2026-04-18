@@ -1,0 +1,7 @@
+{
+  "tool_name": "Bash",
+  "tool_input_preview": "{\"command\":\"pnpm --filter @kraken/api test 2>&1\",\"timeout\":60000}",
+  "error": "Exit code 1\n\n> @kraken/api@0.1.0 test C:\\Users\\shyamsridhar\\code\\kraken\\apps\\api\n> vitest run\n\n\n\u001b[1m\u001b[46m RUN \u001b[49m\u001b[22m \u001b[36mv3.2.4 \u001b[39m\u001b[90mC:/Users/shyamsridhar/code/kraken/apps/api\u001b[39m\n\n \u001b[32m✓\u001b[39m tests/logging.test.ts \u001b[2m(\u001b[22m\u001b[2m3 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 12\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/protocol.test.ts \u001b[2m(\u001b[22m\u001b[2m1 test\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 6\u001b[2mms\u001b[22m\u001b[39m\n \u001b[32m✓\u001b[39m tests/agentStateDetection.test.ts \u001b[2m(\u001b[22m\u001b[2m7 tests\u001b[22m\u001b[2m)\u001b[22m\u001b[32m 9\u001b[2mms\u001b[22m\u001b[39m\n \u001b[31m❯\u001b[3...",
+  "timestamp": "2026-04-18T12:16:38.906Z",
+  "retry_count": 1
+}

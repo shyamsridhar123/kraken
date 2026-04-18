@@ -31,7 +31,7 @@ export const handleArmGitRoute: ApiRouteHandler = async (
         return true;
       }
 
-      const payload = (runtime as any).readArmGitStatus(armId);
+      const payload = runtime.readArmGitStatus(armId);
       if (!payload) {
         writeJson(response, 404, { error: "Arm not found." }, corsOrigin);
         return true;
@@ -63,7 +63,7 @@ export const handleArmGitRoute: ApiRouteHandler = async (
         return true;
       }
 
-      const payload = (runtime as any).commitArmWorktree(armId, commitMessageResult.message);
+      const payload = runtime.commitArmWorktree(armId, commitMessageResult.message);
       if (!payload) {
         writeJson(response, 404, { error: "Arm not found." }, corsOrigin);
         return true;
@@ -79,7 +79,7 @@ export const handleArmGitRoute: ApiRouteHandler = async (
         return true;
       }
 
-      const payload = (runtime as any).pushArmWorktree(armId);
+      const payload = runtime.pushArmWorktree(armId);
       if (!payload) {
         writeJson(response, 404, { error: "Arm not found." }, corsOrigin);
         return true;
@@ -105,7 +105,7 @@ export const handleArmGitRoute: ApiRouteHandler = async (
       return true;
     }
 
-    const payload = (runtime as any).syncArmWorktree(armId, baseRefResult.baseRef ?? undefined);
+    const payload = runtime.syncArmWorktree(armId, baseRefResult.baseRef ?? undefined);
     if (!payload) {
       writeJson(response, 404, { error: "Arm not found." }, corsOrigin);
       return true;
@@ -135,7 +135,7 @@ export const handleArmGitPullRequestRoute: ApiRouteHandler = async (
 
     const armId = decodeURIComponent(mergeMatch[1] ?? "");
     try {
-      const payload = (runtime as any).mergeArmPullRequest(armId);
+      const payload = runtime.mergeArmPullRequest(armId);
       if (!payload) {
         writeJson(response, 404, { error: "Arm not found." }, corsOrigin);
         return true;
@@ -161,7 +161,7 @@ export const handleArmGitPullRequestRoute: ApiRouteHandler = async (
 
   try {
     if (request.method === "GET") {
-      const payload = (runtime as any).readArmPullRequest(armId);
+      const payload = runtime.readArmPullRequest(armId);
       if (!payload) {
         writeJson(response, 404, { error: "Arm not found." }, corsOrigin);
         return true;
@@ -192,7 +192,7 @@ export const handleArmGitPullRequestRoute: ApiRouteHandler = async (
       return true;
     }
 
-    const payload = (runtime as any).createArmPullRequest(armId, {
+    const payload = runtime.createArmPullRequest(armId, {
       title: pullRequestInput.title,
       ...(pullRequestInput.body.length > 0 ? { body: pullRequestInput.body } : {}),
       ...(pullRequestInput.baseRef !== null ? { baseRef: pullRequestInput.baseRef } : {}),

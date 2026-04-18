@@ -1,9 +1,8 @@
 import type { IncomingMessage } from "node:http";
 import type { Socket } from "node:net";
 
+import type { TerminalRuntime } from "./routeHelpers";
 import { isAllowedHostHeader, isAllowedOriginHeader, readHeaderValue } from "./security";
-
-type TerminalRuntime = Record<string, unknown>;
 
 type CreateUpgradeHandlerOptions = {
   runtime: TerminalRuntime;
@@ -28,7 +27,7 @@ export const createUpgradeHandler = ({
     }
 
     try {
-      if (!(runtime as any).handleUpgrade(request, socket, head)) {
+      if (!runtime.handleUpgrade(request, socket, head)) {
         socket.destroy();
       }
     } catch {

@@ -3,6 +3,11 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
+  build: {
+    rollupOptions: {
+      external: ["xterm", "xterm/css/xterm.css", "@xterm/addon-fit", "xterm-addon-unicode11"],
+    },
+  },
   server: {
     proxy: {
       "/api": {

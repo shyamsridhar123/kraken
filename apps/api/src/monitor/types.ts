@@ -13,3 +13,14 @@ export type MonitorEvent = {
   timestamp: string;
   payload?: unknown;
 };
+
+export type MonitorPost = {
+  source: string;
+  id: string;
+  text: string;
+  author: string;
+  createdAt: string;
+  likeCount: number;
+  permalink: string;
+  matchedQueryTerm: string | null;
+};

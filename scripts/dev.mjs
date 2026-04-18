@@ -1,4 +1,4 @@
-import { exec } from "node:child_process";
+import { spawn } from "node:child_process";
 import { existsSync, readFileSync } from "node:fs";
 import { createServer } from "node:net";
 import { homedir } from "node:os";
@@ -60,7 +60,6 @@ const findOpenPort = async (startPort) => {
       break;
     }
 
-    // eslint-disable-next-line no-await-in-loop
     const isAvailable = await canListenOnPort(port);
     if (isAvailable) {
       return port;
@@ -70,16 +69,14 @@ const findOpenPort = async (startPort) => {
   throw new Error(`Unable to find an open port starting from ${startPort}`);
 };
 
-const pnpmCommand = "pnpm";
 const startPort = parseStartPort(process.env.KRAKEN_DEV_START_PORT);
 const apiPort = await findOpenPort(startPort);
 const apiOrigin = `http://127.0.0.1:${apiPort}`;
 
-console.log(`[kraken-dev] using api port ${apiPort}`);
+console.log(`[kraken-dev] API: ${apiOrigin}`);
 
-const monorepoRoot = new URL("..", import.meta.url).pathname.replace(/\/$/, "");
+const monorepoRoot = new URL("..", import.meta.url).pathname.replace(/\/$/, "").replace(/^\/([A-Z]):/, "$1:");
 
-// Resolve project state dir from global registry.
 const resolveProjectStateDir = (workspaceCwd) => {
   if (process.env.KRAKEN_PROJECT_STATE_DIR) {
     return process.env.KRAKEN_PROJECT_STATE_DIR;
@@ -98,23 +95,6 @@ const resolveProjectStateDir = (workspaceCwd) => {
       // fall through
     }
   }
-  const projectsFile = join(homedir(), ".kraken", "projects.json");
-  if (existsSync(projectsFile)) {
-    try {
-      const registry = JSON.parse(readFileSync(projectsFile, "utf-8"));
-      const project = registry.projects?.find((p) => p.path === workspaceCwd);
-      if (project) {
-        if (typeof project.id === "string" && project.id.trim().length > 0) {
-          return join(homedir(), ".kraken", "projects", project.id);
-        }
-        if (typeof project.name === "string" && project.name.trim().length > 0) {
-          return join(homedir(), ".kraken", "projects", project.name);
-        }
-      }
-    } catch {
-      // fall through
-    }
-  }
   return `${workspaceCwd}/.kraken`;
 };
 
@@ -128,32 +108,43 @@ const env = {
   KRAKEN_WORKSPACE_CWD: workspaceCwd,
   KRAKEN_PROJECT_STATE_DIR: projectStateDir,
   KRAKEN_PROMPTS_DIR: process.env.KRAKEN_PROMPTS_DIR ?? `${monorepoRoot}/prompts`,
+  PORT: String(apiPort),
 };
 
-const cmd = `pnpm -r --parallel --filter @kraken/api --filter @kraken/web dev`;
-
-const child = exec(cmd, {
+// Start API server
+const api = spawn("npx", ["tsx", "apps/api/src/server.ts"], {
   stdio: "inherit",
   cwd: monorepoRoot,
   env,
+  shell: true,
 });
 
-const forwardSignal = (signal) => {
-  if (child.killed) {
-    return;
-  }
+// Start Vite dev server
+const web = spawn("npx", ["vite", "--port", "5173"], {
+  stdio: "inherit",
+  cwd: join(monorepoRoot, "apps", "web"),
+  env,
+  shell: true,
+});
 
-  child.kill(signal);
+console.log(`[kraken-dev] Web: http://localhost:5173`);
+
+const shutdown = (signal) => {
+  if (!api.killed) api.kill(signal);
+  if (!web.killed) web.kill(signal);
 };
 
-process.on("SIGINT", () => forwardSignal("SIGINT"));
-process.on("SIGTERM", () => forwardSignal("SIGTERM"));
+process.on("SIGINT", () => shutdown("SIGINT"));
+process.on("SIGTERM", () => shutdown("SIGTERM"));
 
-child.on("exit", (code, signal) => {
-  if (signal) {
-    process.kill(process.pid, signal);
-    return;
-  }
+api.on("exit", (code) => {
+  console.log(`[kraken-dev] API exited (code ${code})`);
+  if (!web.killed) web.kill();
+  process.exit(code ?? 1);
+});
 
-  process.exit(code ?? 0);
+web.on("exit", (code) => {
+  console.log(`[kraken-dev] Web exited (code ${code})`);
+  if (!api.killed) api.kill();
+  process.exit(code ?? 1);
 });

@@ -292,7 +292,7 @@ export const createTerminalRuntime = ({
         ? requestedTerminalId
         : allocateTerminalId();
 
-    // Allow explicit armId so multiple terminals can share a tentacle context (e.g. swarm workers).
+    // Allow explicit armId so multiple terminals can share a arm context (e.g. fleet workers).
     const armId = requestedTentacleId ?? terminalId;
     const effectiveName = armName ?? allocateDefaultTerminalName();
 

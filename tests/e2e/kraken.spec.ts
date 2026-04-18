@@ -114,7 +114,9 @@ test.describe("Kraken Dashboard — Real E2E", () => {
     const listResponse = await request.get("http://127.0.0.1:8787/api/terminal-snapshots");
     const terminals = await listResponse.json();
     expect(terminals.length).toBeGreaterThan(0);
-    const found = terminals.find((t: { terminalId: string }) => t.terminalId === terminal.terminalId);
+    const found = terminals.find(
+      (t: { terminalId: string }) => t.terminalId === terminal.terminalId,
+    );
     expect(found).toBeDefined();
     expect(found.state).toBe("live");
   });

@@ -12,12 +12,11 @@ import {
 import { createCodeIntelStore } from "./codeIntelStore";
 import { readCodexUsageSnapshot as readCodexUsageSnapshotDefault } from "./codexUsage";
 import { createApiRequestHandler } from "./createApiServer/requestHandler";
-import type { TerminalRuntime } from "./createApiServer/routeHelpers";
 import type { CreateApiServerOptions } from "./createApiServer/types";
 import { createUpgradeHandler } from "./createApiServer/upgradeHandler";
 import { readGithubRepoSummary as readGithubRepoSummaryDefault } from "./githubRepoSummary";
 import { createMonitorService } from "./monitor";
-import { loadTerminalRegistry } from "./terminalRuntime";
+import { createTerminalRuntime } from "./terminalRuntime";
 
 export const createApiServer = ({
   workspaceCwd,
@@ -94,37 +93,16 @@ export const createApiServer = ({
         cwd: resolvedWorkspaceCwd,
       }));
 
-  const runtime = {
-    listTerminalSnapshots: () => [],
-    getTerminalSnapshot: () => null,
-    createTerminal: () => ({ terminalId: "", armId: "", armName: "", createdAt: new Date().toISOString(), workspaceMode: "shared" as const, nameOrigin: "generated" as const }),
-    deleteTerminal: () => {},
-    renameTerminal: () => {},
-    getChannelMessages: () => [],
-    sendChannelMessage: () => null,
-    getUiState: () => ({}),
-    readUiState: () => ({}),
-    patchUiState: () => ({}),
-    handleHookEvent: () => {},
-    getConversations: () => [],
-    listConversationSessions: () => [],
-    getConversation: () => null,
-    readConversationSession: () => null,
-    searchConversations: () => ({ query: "", hits: [] }),
-    deleteConversation: () => {},
-    deleteConversationSession: () => {},
-    deleteAllConversations: () => {},
-    deleteAllConversationSessions: () => {},
-    exportConversation: () => null,
-    exportConversationSession: () => null,
-    handleUpgrade: () => {},
-    getGitStatus: () => null,
-    getGitPullRequest: () => null,
-    gitCommit: async () => {},
-    gitPush: async () => {},
-    gitSync: async () => {},
-    gitMergePullRequest: async () => {},
-  } as unknown as TerminalRuntime;
+  const runtimeOptions: Parameters<typeof createTerminalRuntime>[0] = {
+    workspaceCwd: resolvedWorkspaceCwd,
+    projectStateDir: resolvedStateDir,
+    getApiBaseUrl,
+  };
+  if (gitClient) {
+    runtimeOptions.gitClient = gitClient;
+  }
+
+  const runtime = createTerminalRuntime(runtimeOptions);
   const monitorServiceWithDefault =
     monitorService ??
     createMonitorService({

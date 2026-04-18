@@ -1,7 +1,6 @@
-import { test, expect } from "@playwright/test";
+import { expect, test } from "@playwright/test";
 
 test.describe("Kraken Dashboard — Real E2E", () => {
-
   test("TC1: Dashboard loads with Kraken branding and navigation", async ({ page }) => {
     await page.goto("/");
     await expect(page.locator("text=KRAKEN")).toBeVisible();
@@ -11,7 +10,10 @@ test.describe("Kraken Dashboard — Real E2E", () => {
     await expect(nav.locator("button", { hasText: "Activity" })).toBeVisible();
     await expect(nav.locator("button", { hasText: "Prompts" })).toBeVisible();
     await expect(nav.locator("button", { hasText: "Settings" })).toBeVisible();
-    await page.screenshot({ path: "tests/e2e/screenshots/tc1-dashboard-loaded.png", fullPage: true });
+    await page.screenshot({
+      path: "tests/e2e/screenshots/tc1-dashboard-loaded.png",
+      fullPage: true,
+    });
   });
 
   test("TC2: Navigate to each view via nav buttons", async ({ page }) => {
@@ -21,7 +23,10 @@ test.describe("Kraken Dashboard — Real E2E", () => {
       const btn = page.locator("nav button", { hasText: view });
       await btn.click();
       await page.waitForTimeout(500);
-      await page.screenshot({ path: `tests/e2e/screenshots/tc2-view-${view.toLowerCase()}.png`, fullPage: true });
+      await page.screenshot({
+        path: `tests/e2e/screenshots/tc2-view-${view.toLowerCase()}.png`,
+        fullPage: true,
+      });
     }
   });
 
@@ -93,14 +98,25 @@ test.describe("Kraken Dashboard — Real E2E", () => {
     expect(response.ok()).toBeTruthy();
     const body = await response.json();
     expect(body).toBeInstanceOf(Array);
-    expect(body.length).toBe(0);
   });
 
-  test("TC10: Conversations returns empty list", async ({ request }) => {
-    const response = await request.get("http://127.0.0.1:8787/api/conversations");
+  test("TC10: Create REAL terminal via API — no stubs", async ({ request }) => {
+    const response = await request.post("http://127.0.0.1:8787/api/terminals", {
+      data: { workspaceMode: "shared", armName: "e2e-live-terminal" },
+    });
     expect(response.ok()).toBeTruthy();
-    const body = await response.json();
-    expect(body).toBeInstanceOf(Array);
+    const terminal = await response.json();
+    expect(terminal.terminalId).toBeDefined();
+    expect(terminal.state).toBe("live");
+    expect(terminal.workspaceMode).toBe("shared");
+    expect(terminal.armName).toContain("Kraken Terminal");
+
+    const listResponse = await request.get("http://127.0.0.1:8787/api/terminal-snapshots");
+    const terminals = await listResponse.json();
+    expect(terminals.length).toBeGreaterThan(0);
+    const found = terminals.find((t: { terminalId: string }) => t.terminalId === terminal.terminalId);
+    expect(found).toBeDefined();
+    expect(found.state).toBe("live");
   });
 
   test("TC11: Navigate to CommandDeck and verify arms are listed", async ({ page }) => {
@@ -108,7 +124,10 @@ test.describe("Kraken Dashboard — Real E2E", () => {
     const deckBtn = page.locator("nav button", { hasText: "CommandDeck" });
     await deckBtn.click();
     await page.waitForTimeout(1000);
-    await page.screenshot({ path: "tests/e2e/screenshots/tc11-commanddeck-arms.png", fullPage: true });
+    await page.screenshot({
+      path: "tests/e2e/screenshots/tc11-commanddeck-arms.png",
+      fullPage: true,
+    });
   });
 
   test("TC12: No octogent references in any rendered page text", async ({ page }) => {

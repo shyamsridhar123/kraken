@@ -10,7 +10,7 @@ export type StartupPrerequisiteIssue = {
 };
 
 export type StartupPrerequisiteAvailability = Record<
-  "claude" | "codex" | "gemini" | "git" | "gh" | "curl",
+  "claude" | "claude-azure" | "codex" | "gemini" | "git" | "gh" | "curl",
   boolean
 >;
 
@@ -53,6 +53,7 @@ export const collectStartupPrerequisiteReport = (
 ): StartupPrerequisiteReport => {
   const availability: StartupPrerequisiteAvailability = {
     claude: isAvailable("claude"),
+    "claude-azure": isAvailable("claude-azure"),
     codex: isAvailable("codex"),
     gemini: isAvailable("gemini"),
     git: isAvailable("git"),
@@ -63,7 +64,7 @@ export const collectStartupPrerequisiteReport = (
   const errors: StartupPrerequisiteIssue[] = [];
   const warnings: StartupPrerequisiteIssue[] = [];
 
-  if (!availability.claude && !availability.codex && !availability.gemini) {
+  if (!availability.claude && !availability["claude-azure"] && !availability.codex && !availability.gemini) {
     errors.push({
       command: "claude/codex/gemini",
       severity: "error",

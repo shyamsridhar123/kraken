@@ -10,11 +10,12 @@ export const isAgentRuntimeState = (value: unknown): value is AgentRuntimeState 
   value === "waiting_for_permission" ||
   value === "waiting_for_user";
 
-export type TerminalAgentProvider = "codex" | "claude-code" | "gemini-cli";
+export type TerminalAgentProvider = "codex" | "claude-code" | "claude-azure" | "gemini-cli";
 
 export const TERMINAL_AGENT_PROVIDERS: TerminalAgentProvider[] = [
   "codex",
   "claude-code",
+  "claude-azure",
   "gemini-cli",
 ];
 
